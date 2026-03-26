@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Us — Acme Corp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0b0f;
+      --bg-2: #12141a;
+      --bg-3: #1a1d26;
+      --border: rgba(255,255,255,0.07);
+      --text: #f0f1f5;
+      --text-2: #9298aa;
+      --accent: #6c63ff;
+      --accent-2: #00d4aa;
+      --success: #10b981;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      pointer-events: none;
+    }
+    .orb-1 { width: 600px; height: 600px; background: var(--accent); opacity: 0.06; top: -200px; left: -100px; }
+    .orb-2 { width: 500px; height: 500px; background: var(--accent-2); opacity: 0.05; bottom: -100px; right: -100px; }
+
+    .page { position: relative; z-index: 1; width: 100%; max-width: 560px; }
+
+    /* Fake nav */
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 64px;
+    }
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--text), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-badge {
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      background: rgba(108,99,255,0.12);
+      color: var(--accent);
+      border-radius: 20px;
+      border: 1px solid rgba(108,99,255,0.2);
+    }
+
+    /* Header */
+    .page-head { text-align: center; margin-bottom: 40px; }
+    .page-head h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+    .page-head p { color: var(--text-2); font-size: 1rem; line-height: 1.6; }
+
+    /* Card */
+    .form-card {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+    }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-2);
+    }
+    input, textarea, select {
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      padding: 11px 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      transition: 0.2s;
+      width: 100%;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(108,99,255,0.15);
+    }
+    textarea { resize: vertical; min-height: 90px; }
+    select option { background: var(--bg-3); }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 13px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    button[type="submit"]:hover { background: #7c75ff; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(108,99,255,0.35); }
+    button[type="submit"]:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Success state */
+    .success-state {
+      text-align: center;
+      padding: 20px 0;
+      display: none;
+    }
+    .success-icon {
+      width: 64px; height: 64px;
+      background: rgba(16,185,129,0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin: 0 auto 20px;
+      border: 2px solid rgba(16,185,129,0.3);
+    }
+    .success-state h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .success-state p { color: var(--text-2); font-size: 0.9rem; }
+
+    /* Error/info banner */
+    .banner {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .banner-error { background: rgba(255,77,109,0.12); color: #ff4d6d; border: 1px solid rgba(255,77,109,0.2); }
+
+    /* Footer note */
+    .footer-note {
+      text-align: center;
+      margin-top: 28px;
+      font-size: 0.78rem;
+      color: var(--text-2);
+    }
+    .footer-note a { color: var(--accent); text-decoration: none; }
+    .footer-note a:hover { text-decoration: underline; }
+
+    /* Demo label */
+    .demo-label {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 0.75rem;
+      color: var(--text-2);
+      z-index: 100;
+    }
+    .demo-label span { color: var(--accent); font-weight: 600; }
+
+    @media (max-width: 480px) {
+      .form-row { grid-template-columns: 1fr; }
+      .form-card { padding: 24px 20px; }
+      .page-head h1 { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div class="demo-label">
+    Demo → Submissions go to <span>SavanaCRM</span>
+  </div>
+
+  <div class="page">
+    <nav class="nav">
+      <div class="nav-logo">◈ Acme Corp</div>
+      <div class="nav-badge">Sample Business Website</div>
+    </nav>
+
+    <div class="page-head">
+      <h1>Let's work<br/>together</h1>
+      <p>Fill in the form below and our team will<br/>get back to you within 24 hours.</p>
+    </div>
+
+    <div class="form-card">
+      <div class="banner banner-error" id="errorBanner"></div>
+
+      <!-- Contact Form -->
+      <form id="contactForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Full Name *</label>
+            <input type="text" id="name" placeholder="Jane Smith" required />
+          </div>
+          <div class="form-group">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" placeholder="jane@company.com" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" placeholder="+1 555 000 0000" />
+          </div>
+          <div class="form-group">
+            <label for="company">Company</label>
+            <input type="text" id="company" placeholder="Acme Corp" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="source">How did you hear about us?</label>
+          <select id="source">
+            <option value="website">Website</option>
+            <option value="referral">Referral</option>
+            <option value="social_media">Social Media</option>
+            <option value="email_campaign">Email Campaign</option>
+            <option value="cold_call">Cold Call</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:20px">
+          <label for="message">Your Message</label>
+          <textarea id="message" placeholder="Tell us about your project, timeline, and goals…"></textarea>
+        </div>
+        <button type="submit" id="submitBtn">
+          Send Message →
+        </button>
+      </form>
+
+      <!-- Success state (hidden by default) -->
+      <div class="success-state" id="successState">
+        <div class="success-icon">✓</div>
+        <h2>Message sent!</h2>
+        <p>Thanks for reaching out. We've received your message<br/>and will be in touch soon.</p>
+        <button
+          style="margin-top:24px; padding:10px 24px; background:transparent; border:1px solid var(--border); border-radius:8px; color:var(--text-2); cursor:pointer; font-family:'DM Sans',sans-serif; font-size:0.9rem; transition:0.2s;"
+          onclick="resetForm()"
+          onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+          onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-2)'"
+        >
+          Submit another
+        </button>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      This form submits to <a href="http://localhost:5000/api/contact" target="_blank">/api/contact</a>.
+      View the submission in your <a href="http://localhost:5173" target="_blank">SavanaCRM dashboard →</a>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:5000/api/contact';
+
+    const form = document.getElementById('contactForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const successState = document.getElementById('successState');
+    const errorBanner = document.getElementById('errorBanner');
+
+    function showError(msg) {
+      errorBanner.textContent = msg;
+      errorBanner.style.display = 'block';
+    }
+    function hideError() {
+      errorBanner.style.display = 'none';
+    }
+
+    function resetForm() {
+      form.reset();
+      form.style.display = 'block';
+      successState.style.display = 'none';
+      hideError();
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideError();
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const company = document.getElementById('company').value.trim();
+      const source = document.getElementById('source').value;
+      const message = document.getElementById('message').value.trim();
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner"></span> Sending…';
+
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, phone, company, source, message })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Something went wrong.');
+        }
+
+        // Show success
+        form.style.display = 'none';
+        successState.style.display = 'block';
+
+      } catch (err) {
+        showError(err.message || 'Failed to send. Is the SavanaCRM backend running on port 5000?');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Send Message →';
+      }
+    });
+  </script>
+</body>
+</html>
