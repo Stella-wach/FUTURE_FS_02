@@ -5,7 +5,7 @@ import { useToast } from '../context/ToastContext';
 import './Auth.css';
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, demoLogin } = useAuth();
   const { addToast } = useToast();
   const [form, setForm] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
@@ -20,6 +20,21 @@ export default function Login() {
       addToast('Welcome back!', 'success');
     } catch (err) {
       addToast(err.response?.data?.message || 'Login failed', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDemoLogin = async () => {
+    setLoading(true);
+    try {
+      // Self-healing demo account (backend/routes/auth.js POST /demo) -
+      // creates the account on first use if needed, so this works in
+      // production without anyone having to manually run seed.js.
+      await demoLogin();
+      addToast('Welcome to the demo!', 'success');
+    } catch (err) {
+      addToast(err.response?.data?.message || 'Demo login failed', 'error');
     } finally {
       setLoading(false);
     }
@@ -74,9 +89,18 @@ export default function Login() {
           No account? <Link to="/register">Create one free</Link>
         </p>
 
-        <div className="demo-hint">
-          <span>Demo:</span> Register a new account to get started
+        <div className="auth-divider">
+          <span>or</span>
         </div>
+
+        <button
+          type="button"
+          className="btn btn-secondary auth-submit"
+          onClick={handleDemoLogin}
+          disabled={loading}
+        >
+          {loading ? <><span className="spinner" style={{width:16,height:16}} /> Loading demo…</> : 'Try Demo — No Signup Needed'}
+        </button>
       </div>
     </div>
   );

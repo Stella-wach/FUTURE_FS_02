@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Lead = require('../models/Lead');
+const { buildSeedLeads } = require('../data/sampleLeads');
 const { protect } = require('../middleware/auth');
 
 const signToken = (id) =>
@@ -19,6 +21,41 @@ router.post('/register', async (req, res) => {
     const token = signToken(user._id);
 
     res.status(201).json({
+      token,
+      user: { id: user._id, name: user.name, email: user.email, role: user.role }
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// POST /api/auth/demo - one-click demo login, no signup needed
+// Creates the demo account on first use if it doesn't exist yet, so this
+// works in production without anyone having to manually run seed.js.
+router.post('/demo', async (req, res) => {
+  try {
+    const DEMO_EMAIL = 'admin@savanacrm.dev';
+    const DEMO_PASSWORD = 'admin123';
+
+    let user = await User.findOne({ email: DEMO_EMAIL });
+    if (!user) {
+      user = await User.create({
+        name: 'Alex Admin',
+        email: DEMO_EMAIL,
+        password: DEMO_PASSWORD,
+        role: 'admin',
+      });
+    }
+
+    // Since leads aren't scoped per-user in this app, only seed once -
+    // if leads already exist (demo or real), leave them alone.
+    const leadCount = await Lead.countDocuments();
+    if (leadCount === 0) {
+      await Lead.insertMany(buildSeedLeads(user.name));
+    }
+
+    const token = signToken(user._id);
+    res.json({
       token,
       user: { id: user._id, name: user.name, email: user.email, role: user.role }
     });
